@@ -50,7 +50,26 @@ const M_PAD_STYLE: CustomStyle = {
   }
 };
 
-const BUILT_IN_STYLES: CustomStyle[] = [M_PAD_STYLE];
+const REVERSE_STYLE: CustomStyle = {
+  id: 'reverse-builtin',
+  name: 'REVERSE',
+  notes: {
+    'C': '/estilos/REVERSE/C.mp3',
+    'C#': '/estilos/REVERSE/CSUS.mp3',
+    'D': '/estilos/REVERSE/D.mp3',
+    'D#': '/estilos/REVERSE/DSUS.mp3',
+    'E': '/estilos/REVERSE/E.mp3',
+    'F': '/estilos/REVERSE/F.mp3',
+    'F#': '/estilos/REVERSE/FSUS.mp3',
+    'G': '/estilos/REVERSE/G.mp3',
+    'G#': '/estilos/REVERSE/GSUS.mp3',
+    'A': '/estilos/REVERSE/A.mp3',
+    'A#': '/estilos/REVERSE/ASUS.mp3',
+    'B': '/estilos/REVERSE/B.mp3',
+  }
+};
+
+const BUILT_IN_STYLES: CustomStyle[] = [M_PAD_STYLE, REVERSE_STYLE];
 
 function getStyleByName(name: string): CustomStyle | undefined {
   return BUILT_IN_STYLES.find(s => s.name === name);
@@ -143,7 +162,7 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [bgVolume]);
 
-  const allStyleNames = ['M-PAD', ...customStyles.map(s => s.name).filter(n => n !== 'M-PAD')];
+  const allStyleNames = ['M-PAD', 'REVERSE', ...customStyles.map(s => s.name).filter(n => n !== 'M-PAD' && n !== 'REVERSE')];
 
   const addCustomStyle = (newStyle: CustomStyle) => {
     const updated = [...customStyles, newStyle];
