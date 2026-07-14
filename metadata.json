@@ -1,0 +1,6 @@
+{
+  "name": "M-PAD",
+  "description": "An offline-capable instrumental pad player with customizable sets, effects, and harmonic field generation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

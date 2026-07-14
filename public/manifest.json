@@ -1,0 +1,28 @@
+{
+  "name": "M-PAD",
+  "short_name": "M-PAD",
+  "description": "Tocador de pads instrumental com fundos musicais",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "background_color": "#0F1115",
+  "theme_color": "#0F1115",
+  "orientation": "any",
+  "categories": ["music", "entertainment"],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
