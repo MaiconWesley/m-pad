@@ -130,7 +130,7 @@ export default function BackgroundMusicView({ mode, onModeChange }: BackgroundMu
 
   if (mode === 'create') {
     return (
-      <div className="p-6 space-y-6">
+      <div className="p-responsive p-6 space-y-5 sm:space-y-6 max-w-lg mx-auto w-full">
         <div className="flex items-center justify-between">
           <button
             onClick={() => { setEditTrackId(null); setName(''); setDescription(''); setAudioFile(null); onModeChange('list'); }}
@@ -145,29 +145,29 @@ export default function BackgroundMusicView({ mode, onModeChange }: BackgroundMu
           <div className="w-14" />
         </div>
 
-        <div className="bg-black/20 border border-white/10 rounded-xl p-4">
+        <div className="bg-black/20 border border-white/10 rounded-xl p-3 sm:p-4">
           <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 block">Nome</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Ex: Piano Suave"
-            className="bg-[#0F1115] text-indigo-400 p-3 rounded-lg border border-white/10 w-full focus:border-indigo-500/50 outline-none placeholder:text-slate-600"
+            className="bg-[#0F1115] text-indigo-400 p-3 rounded-lg border border-white/10 w-full focus:border-indigo-500/50 outline-none placeholder:text-slate-600 text-sm"
           />
         </div>
 
-        <div className="bg-black/20 border border-white/10 rounded-xl p-4">
+        <div className="bg-black/20 border border-white/10 rounded-xl p-3 sm:p-4">
           <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 block">Descrição</label>
           <input
             type="text"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Breve descrição do fundo musical"
-            className="bg-[#0F1115] text-indigo-400 p-3 rounded-lg border border-white/10 w-full focus:border-indigo-500/50 outline-none placeholder:text-slate-600"
+            className="bg-[#0F1115] text-indigo-400 p-3 rounded-lg border border-white/10 w-full focus:border-indigo-500/50 outline-none placeholder:text-slate-600 text-sm"
           />
         </div>
 
-        <div className="bg-black/20 border border-white/10 rounded-xl p-4">
+        <div className="bg-black/20 border border-white/10 rounded-xl p-3 sm:p-4">
           <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 block">Áudio</label>
           <button
             onClick={() => fileInputRef.current?.click()}
@@ -189,7 +189,7 @@ export default function BackgroundMusicView({ mode, onModeChange }: BackgroundMu
         <button
           onClick={handleSave}
           disabled={!name.trim() || !audioFile || saving}
-          className="w-full p-4 bg-indigo-600 rounded-2xl font-bold text-white hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full p-4 bg-indigo-600 rounded-2xl font-bold text-white hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
         >
           {saving ? 'Salvando...' : editTrackId ? 'Atualizar Fundo Musical' : 'Salvar Fundo Musical'}
         </button>
@@ -198,7 +198,7 @@ export default function BackgroundMusicView({ mode, onModeChange }: BackgroundMu
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-responsive p-6 space-y-5 sm:space-y-6 max-w-lg mx-auto w-full">
       {backgroundTracks.length === 0 ? (
         <div className="text-center py-12 text-slate-600 text-sm">Nenhum fundo musical cadastrado.</div>
       ) : (
@@ -225,11 +225,11 @@ export default function BackgroundMusicView({ mode, onModeChange }: BackgroundMu
       )}
 
       {isBgPlaying && (
-        <div className="bg-black/20 border border-white/10 rounded-xl px-4 py-3">
+        <div className="bg-black/20 border border-white/10 rounded-xl px-3 py-3 sm:px-4">
           <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
             <Volume2 size={14} /> VOLUME
           </label>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <input
               type="range"
               min="0"
@@ -237,9 +237,9 @@ export default function BackgroundMusicView({ mode, onModeChange }: BackgroundMu
               step="0.01"
               value={bgVolume}
               onChange={(e) => setBgVolume(parseFloat(e.target.value))}
-              className="flex-1 accent-indigo-500"
+              className="flex-1 accent-indigo-500 h-6"
             />
-            <button onClick={stopBackgroundTrack} className="shrink-0 px-5 py-3 bg-red-600 rounded-xl font-bold text-white hover:bg-red-700 transition-colors text-sm">PARAR</button>
+            <button onClick={stopBackgroundTrack} className="shrink-0 px-4 py-2.5 sm:px-5 sm:py-3 bg-red-600 rounded-xl font-bold text-white hover:bg-red-700 transition-colors text-xs sm:text-sm">PARAR</button>
           </div>
         </div>
       )}

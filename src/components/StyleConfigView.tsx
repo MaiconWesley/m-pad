@@ -135,7 +135,7 @@ export default function StyleConfigView() {
 
   if (mode === 'list') {
     return (
-      <div className="p-6 space-y-6">
+      <div className="p-responsive p-6 space-y-5 sm:space-y-6 max-w-lg mx-auto w-full">
         {saved && (
           <div className="p-3 bg-green-600/20 border border-green-500/50 rounded-xl text-xs text-green-400 text-center">
             Estilo salvo com sucesso!
@@ -272,7 +272,7 @@ export default function StyleConfigView() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-responsive p-6 space-y-5 sm:space-y-6 max-w-lg mx-auto w-full">
       <div className="flex items-center justify-between">
         <button onClick={goToList} className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-200 transition-colors">
           <ArrowLeft size={14} />
@@ -284,7 +284,7 @@ export default function StyleConfigView() {
         <div className="w-14" />
       </div>
 
-      <div className="bg-black/20 border border-white/10 rounded-xl p-4">
+      <div className="bg-black/20 border border-white/10 rounded-xl p-3 sm:p-4">
         <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 block">
           Nome do Estilo
         </label>
@@ -293,7 +293,7 @@ export default function StyleConfigView() {
           value={styleName}
           onChange={(e) => setStyleName(e.target.value)}
           placeholder="Ex: Meu Piano Suave"
-          className="bg-[#0F1115] text-indigo-400 p-3 rounded-lg border border-white/10 w-full focus:border-indigo-500/50 outline-none placeholder:text-slate-600"
+          className="bg-[#0F1115] text-indigo-400 p-3 rounded-lg border border-white/10 w-full focus:border-indigo-500/50 outline-none placeholder:text-slate-600 text-sm"
         />
       </div>
 
@@ -312,7 +312,7 @@ export default function StyleConfigView() {
         <p className="text-[10px] text-slate-600 mb-3">
           Clique em cada nota para selecionar o arquivo de áudio
         </p>
-        <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
           {NOTES.map(note => {
             const hasAudio = noteHasAudio(note);
             const fileName = noteFiles[note]?.name
@@ -322,7 +322,7 @@ export default function StyleConfigView() {
               <button
                 key={note}
                 onClick={() => handleNoteClick(note)}
-                className={`p-4 border rounded-2xl text-lg font-bold transition-all ${
+                className={`pad-btn p-3 sm:p-4 border rounded-xl sm:rounded-2xl text-base sm:text-lg font-bold transition-all ${
                   hasAudio
                     ? 'bg-green-600/20 border-green-500/50 text-green-400'
                     : 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/[0.08] hover:border-indigo-500/50'
@@ -349,7 +349,7 @@ export default function StyleConfigView() {
       <button
         onClick={handleSave}
         disabled={!styleName.trim() || saving}
-        className="w-full p-4 bg-indigo-600 rounded-2xl font-bold text-white hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full p-4 bg-indigo-600 rounded-2xl font-bold text-white hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
       >
         {saving ? 'Salvando...' : mode === 'edit' ? 'Atualizar Estilo' : 'Criar Estilo'}
       </button>

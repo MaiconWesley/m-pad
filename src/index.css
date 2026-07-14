@@ -6,8 +6,15 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
+html, body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
 body {
   @apply bg-[#0F1115] text-slate-100;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 @keyframes borderPulse {
@@ -25,4 +32,11 @@ body {
       0 0 0 16px rgba(99, 102, 241, 0),
       0 0 0 24px rgba(99, 102, 241, 0);
   }
+}
+
+@media screen and (max-width: 380px) {
+  .p-responsive { @apply px-2; }
+  .gap-responsive { @apply gap-3; }
+  .text-responsive { font-size: 0.9rem; }
+  .pad-btn { @apply p-3 text-base; }
 }
