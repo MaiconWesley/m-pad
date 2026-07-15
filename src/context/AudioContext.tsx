@@ -27,6 +27,8 @@ interface AudioContextType {
   setPadVolume: (volume: number) => void;
   bgVolume: number;
   setBgVolume: (volume: number) => void;
+  fadeDuration: number;
+  setFadeDuration: (duration: number) => void;
 }
 
 const AudioContext = createContext<AudioContextType | null>(null);
@@ -103,6 +105,7 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
   const [currentBgTrackId, setCurrentBgTrackId] = useState<string | null>(null);
   const [padVolume, setPadVolume] = useState(0.2);
   const [bgVolume, setBgVolume] = useState(0.15);
+  const [fadeDuration, setFadeDuration] = useState(2);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const sourceRef = useRef<AudioBufferSourceNode | null>(null);
@@ -188,11 +191,23 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const stopBackgroundTrack = () => {
-    if (bgSourceRef.current) {
-      try { bgSourceRef.current.stop(); } catch {}
-      bgSourceRef.current = null;
+  const stopBackgroundTrack = (fade = false) => {
+    const src = bgSourceRef.current;
+    bgSourceRef.current = null;
+
+    if (src) {
+      if (fade && bgGainNodeRef.current && audioCtxRef.current) {
+        const ctx = audioCtxRef.current;
+        const stopTime = ctx.currentTime + fadeDuration;
+        bgGainNodeRef.current.gain.cancelScheduledValues(ctx.currentTime);
+        bgGainNodeRef.current.gain.setValueAtTime(bgGainNodeRef.current.gain.value, ctx.currentTime);
+        bgGainNodeRef.current.gain.linearRampToValueAtTime(0, stopTime);
+        src.stop(stopTime);
+      } else {
+        try { src.stop(); } catch {}
+      }
     }
+
     bgGainNodeRef.current = null;
     setIsBgPlaying(false);
     setCurrentBgTrackId(null);
@@ -311,12 +326,23 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
     setIsPlaying(true);
   };
 
-  const stopNote = () => {
+  const stopNote = (fade = false) => {
     const src = sourceRef.current;
     sourceRef.current = null;
+
     if (src) {
-      try { src.stop(); } catch {}
+      if (fade && gainNodeRef.current && audioCtxRef.current) {
+        const ctx = audioCtxRef.current;
+        const stopTime = ctx.currentTime + fadeDuration;
+        gainNodeRef.current.gain.cancelScheduledValues(ctx.currentTime);
+        gainNodeRef.current.gain.setValueAtTime(gainNodeRef.current.gain.value, ctx.currentTime);
+        gainNodeRef.current.gain.linearRampToValueAtTime(0, stopTime);
+        src.stop(stopTime);
+      } else {
+        try { src.stop(); } catch {}
+      }
     }
+
     setIsPlaying(false);
     setCurrentNote(null);
   };
@@ -329,6 +355,7 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
       backgroundTracks, addBackgroundTrack, removeBackgroundTrack, updateBackgroundTrack,
       playBackgroundTrack, stopBackgroundTrack, isBgPlaying, currentBgTrackId,
       padVolume, setPadVolume, bgVolume, setBgVolume,
+      fadeDuration, setFadeDuration,
     }}>
       {children}
     </AudioContext.Provider>

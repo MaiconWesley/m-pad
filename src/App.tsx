@@ -5,6 +5,7 @@ import Navbar from './components/Navbar';
 import PlayerView from './components/PlayerView';
 import StyleConfigView from './components/StyleConfigView';
 import BackgroundMusicView from './components/BackgroundMusicView';
+import SettingsView from './components/SettingsView';
 import { AudioProvider } from './context/AudioContext';
 
 function SplashScreen() {
@@ -66,6 +67,7 @@ export default function App() {
     player: <PlayerView />,
     config: <StyleConfigView />,
     fundos: <BackgroundMusicView mode={fundosMode} onModeChange={setFundosMode} />,
+    settings: <SettingsView />,
   };
 
   return (
@@ -82,6 +84,9 @@ export default function App() {
             <img src="/logo.png" alt="M-PAD" className="h-8 w-8 object-contain" />
             {activeView === 'fundos' && (
               <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Fundos Musicais</span>
+            )}
+            {activeView === 'settings' && (
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Configurações</span>
             )}
           </div>
           {activeView === 'player' && (
@@ -100,7 +105,15 @@ export default function App() {
               <Plus size={22} />
             </button>
           )}
-          {deferredPrompt && !appInstalled && (
+          {activeView === 'settings' && (
+            <button
+              onClick={() => setActiveView('player')}
+              className="text-xs text-slate-400 hover:text-slate-200 transition-colors"
+            >
+              Voltar
+            </button>
+          )}
+          {deferredPrompt && !appInstalled && activeView !== 'settings' && (
             <button
               onClick={handleInstall}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 rounded-lg text-xs font-bold text-white hover:bg-indigo-700 transition-colors"

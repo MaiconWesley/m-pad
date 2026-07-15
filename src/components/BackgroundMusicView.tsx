@@ -239,7 +239,7 @@ export default function BackgroundMusicView({ mode, onModeChange }: BackgroundMu
               onChange={(e) => setBgVolume(parseFloat(e.target.value))}
               className="flex-1 accent-indigo-500 h-6"
             />
-            <button onClick={stopBackgroundTrack} className="shrink-0 px-4 py-2.5 sm:px-5 sm:py-3 bg-red-600 rounded-xl font-bold text-white hover:bg-red-700 transition-colors text-xs sm:text-sm">PARAR</button>
+            <button onClick={() => stopBackgroundTrack(true)} className="shrink-0 px-4 py-2.5 sm:px-5 sm:py-3 bg-red-600 rounded-xl font-bold text-white hover:bg-red-700 transition-colors text-xs sm:text-sm">PARAR</button>
           </div>
         </div>
       )}

@@ -9,7 +9,7 @@ export default function PlayerView() {
   };
 
   const handleStop = () => {
-    stopNote();
+    stopNote(true);
   };
 
   return (
