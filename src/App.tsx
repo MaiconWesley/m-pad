@@ -24,8 +24,8 @@ function SplashScreen() {
 }
 
 function AppContent() {
-  const { loadingStyleName } = useAudio();
-  return loadingStyleName ? <StyleLoading styleName={loadingStyleName} /> : null;
+  const { loadingStyleName, loadingProgress } = useAudio();
+  return loadingStyleName ? <StyleLoading styleName={loadingStyleName} progress={loadingProgress} /> : null;
 }
 
 export default function App() {

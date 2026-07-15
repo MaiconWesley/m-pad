@@ -1,6 +1,6 @@
 import { Music } from 'lucide-react';
 
-export default function StyleLoading({ styleName }: { styleName: string }) {
+export default function StyleLoading({ styleName, progress }: { styleName: string; progress: number }) {
   return (
     <div className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-[#0F1115]/90">
       <div className="flex gap-3 mb-6">
@@ -20,6 +20,13 @@ export default function StyleLoading({ styleName }: { styleName: string }) {
       <p className="text-lg font-bold text-indigo-400 mt-1">
         {styleName}
       </p>
+      <div className="w-48 sm:w-64 mt-5 bg-white/10 rounded-full h-2 overflow-hidden">
+        <div
+          className="h-full bg-indigo-500 rounded-full transition-all duration-300 ease-out"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+      <p className="text-xs text-slate-500 mt-2">{progress}%</p>
     </div>
   );
 }

@@ -30,6 +30,7 @@ interface AudioContextType {
   fadeDuration: number;
   setFadeDuration: (duration: number) => void;
   loadingStyleName: string | null;
+  loadingProgress: number;
 }
 
 const AudioContext = createContext<AudioContextType | null>(null);
@@ -108,6 +109,7 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
   const [bgVolume, setBgVolume] = useState(0.15);
   const [fadeDuration, setFadeDuration] = useState(2);
   const [loadingStyleName, setLoadingStyleName] = useState<string | null>(null);
+  const [loadingProgress, setLoadingProgress] = useState(0);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const sourceRef = useRef<AudioBufferSourceNode | null>(null);
@@ -133,27 +135,50 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
     if (!cs) return;
 
     const ctx = getAudioContext();
-    const paths: string[] = [];
-    const values: string[] = Object.values(cs.notes);
-    for (const p of values) {
-      if (p && !paths.includes(p)) paths.push(p);
-    }
+    const paths = [...new Set(Object.values(cs.notes).filter(Boolean) as string[])];
+    const toLoad = paths.filter(p => !bufferCacheRef.current.has(p));
+    if (toLoad.length === 0) return;
 
-    const uncached = paths.filter(p => !bufferCacheRef.current.has(p));
-    if (uncached.length === 0) return;
+    (async () => {
+      let allCached = false;
+      try {
+        if ('caches' in window) {
+          const cache = await caches.open('m-pad-v3');
+          const results = await Promise.all(toLoad.map((p: string) => cache.match(p)));
+          allCached = results.every(r => r !== undefined);
+        }
+      } catch {}
 
-    setLoadingStyleName(style);
+      if (allCached) {
+        await Promise.allSettled(
+          toLoad.map(async (path: string) => {
+            const resp = await fetch(path);
+            const buf = await resp.arrayBuffer();
+            const audioBuf = await ctx.decodeAudioData(buf);
+            bufferCacheRef.current.set(path, audioBuf);
+          })
+        );
+      } else {
+        setLoadingStyleName(style);
+        setLoadingProgress(0);
+        let loaded = 0;
+        const total = toLoad.length;
 
-    Promise.allSettled(
-      uncached.map(async (path) => {
-        const resp = await fetch(path);
-        const buf = await resp.arrayBuffer();
-        const audioBuf = await ctx.decodeAudioData(buf);
-        bufferCacheRef.current.set(path, audioBuf);
-      })
-    ).finally(() => {
-      setLoadingStyleName(null);
-    });
+        await Promise.allSettled(
+          toLoad.map(async (path: string) => {
+            const resp = await fetch(path);
+            const buf = await resp.arrayBuffer();
+            const audioBuf = await ctx.decodeAudioData(buf);
+            bufferCacheRef.current.set(path, audioBuf);
+            loaded++;
+            setLoadingProgress(Math.round((loaded / total) * 100));
+          })
+        );
+
+        setLoadingStyleName(null);
+        setLoadingProgress(100);
+      }
+    })();
   }, [style, customStyles]);
 
   useEffect(() => {
@@ -364,7 +389,7 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
       backgroundTracks, addBackgroundTrack, removeBackgroundTrack, updateBackgroundTrack,
       playBackgroundTrack, stopBackgroundTrack, isBgPlaying, currentBgTrackId,
       padVolume, setPadVolume, bgVolume, setBgVolume,
-      fadeDuration, setFadeDuration, loadingStyleName,
+      fadeDuration, setFadeDuration, loadingStyleName, loadingProgress,
     }}>
       {children}
     </AudioContext.Provider>
