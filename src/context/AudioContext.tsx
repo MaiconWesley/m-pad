@@ -31,6 +31,9 @@ interface AudioContextType {
   setFadeDuration: (duration: number) => void;
   loadingStyleName: string | null;
   loadingProgress: number;
+  enabledStyles: string[];
+  toggleBuiltInStyle: (name: string) => void;
+  downloadStyle: (name: string) => Promise<void>;
 }
 
 const AudioContext = createContext<AudioContextType | null>(null);
@@ -92,7 +95,27 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
     } catch {}
     return [];
   });
-  const [style, setStyle] = useState('M-PAD');
+  const [enabledStyles, setEnabledStyles] = useState<string[]>(() => {
+    try {
+      const stored = localStorage.getItem('enabled-styles');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return ['M-PAD'];
+  });
+
+  const [style, setStyle] = useState(() => {
+    try {
+      const stored = localStorage.getItem('enabled-styles');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed[0];
+      }
+    } catch {}
+    return 'M-PAD';
+  });
   const [backgroundTracks, setBackgroundTracks] = useState<BackgroundTrack[]>(() => {
     try {
       const stored = localStorage.getItem('background-tracks');
@@ -131,7 +154,7 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    const cs = getStyleByName(style) || customStyles.find((s: CustomStyle) => s.name === style);
+    const cs = customStyles.find((s: CustomStyle) => s.name === style);
     if (!cs) return;
 
     const ctx = getAudioContext();
@@ -181,6 +204,51 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
     })();
   }, [style, customStyles]);
 
+  const toggleBuiltInStyle = (name: string) => {
+    setEnabledStyles(prev => {
+      const updated = prev.includes(name)
+        ? prev.filter(s => s !== name)
+        : [...prev, name];
+      localStorage.setItem('enabled-styles', JSON.stringify(updated));
+      if (!updated.includes(style) && updated.length > 0) {
+        setStyle(updated[0]);
+      }
+      return updated;
+    });
+  };
+
+  const downloadStyle = async (name: string) => {
+    const cs = getStyleByName(name) || customStyles.find(s => s.name === name);
+    if (!cs) return;
+
+    const ctx = getAudioContext();
+    const paths = [...new Set(Object.values(cs.notes).filter(Boolean) as string[])];
+    const toLoad = paths.filter(p => !bufferCacheRef.current.has(p));
+    if (toLoad.length === 0) return;
+
+    setLoadingStyleName(name);
+    setLoadingProgress(0);
+    let loaded = 0;
+    const total = toLoad.length;
+
+    await Promise.allSettled(
+      toLoad.map(async (path: string) => {
+        try {
+          const resp = await fetch(path);
+          if (!resp.ok) return;
+          const buf = await resp.arrayBuffer();
+          const audioBuf = await ctx.decodeAudioData(buf);
+          bufferCacheRef.current.set(path, audioBuf);
+        } catch {}
+        loaded++;
+        setLoadingProgress(Math.round((loaded / total) * 100));
+      })
+    );
+
+    setLoadingStyleName(null);
+    setLoadingProgress(100);
+  };
+
   useEffect(() => {
     if (gainNodeRef.current) {
       const ctx = audioCtxRef.current;
@@ -199,7 +267,10 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [bgVolume]);
 
-  const allStyleNames = ['M-PAD', 'REVERSE', ...customStyles.map(s => s.name).filter(n => n !== 'M-PAD' && n !== 'REVERSE')];
+  const allStyleNames = [
+    ...enabledStyles,
+    ...customStyles.map(s => s.name).filter(n => n !== 'M-PAD' && n !== 'REVERSE')
+  ];
 
   const addCustomStyle = (newStyle: CustomStyle) => {
     const updated = [...customStyles, newStyle];
@@ -390,6 +461,7 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
       playBackgroundTrack, stopBackgroundTrack, isBgPlaying, currentBgTrackId,
       padVolume, setPadVolume, bgVolume, setBgVolume,
       fadeDuration, setFadeDuration, loadingStyleName, loadingProgress,
+      enabledStyles, toggleBuiltInStyle, downloadStyle,
     }}>
       {children}
     </AudioContext.Provider>
