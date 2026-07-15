@@ -29,6 +29,7 @@ interface AudioContextType {
   setBgVolume: (volume: number) => void;
   fadeDuration: number;
   setFadeDuration: (duration: number) => void;
+  loadingStyleName: string | null;
 }
 
 const AudioContext = createContext<AudioContextType | null>(null);
@@ -106,6 +107,7 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
   const [padVolume, setPadVolume] = useState(0.2);
   const [bgVolume, setBgVolume] = useState(0.15);
   const [fadeDuration, setFadeDuration] = useState(2);
+  const [loadingStyleName, setLoadingStyleName] = useState<string | null>(null);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const sourceRef = useRef<AudioBufferSourceNode | null>(null);
@@ -137,14 +139,21 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
       if (p && !paths.includes(p)) paths.push(p);
     }
 
-    for (const path of paths) {
-      if (bufferCacheRef.current.has(path)) continue;
-      fetch(path)
-        .then(r => r.arrayBuffer())
-        .then(buf => ctx.decodeAudioData(buf))
-        .then(audioBuf => bufferCacheRef.current.set(path, audioBuf))
-        .catch(() => {});
-    }
+    const uncached = paths.filter(p => !bufferCacheRef.current.has(p));
+    if (uncached.length === 0) return;
+
+    setLoadingStyleName(style);
+
+    Promise.allSettled(
+      uncached.map(async (path) => {
+        const resp = await fetch(path);
+        const buf = await resp.arrayBuffer();
+        const audioBuf = await ctx.decodeAudioData(buf);
+        bufferCacheRef.current.set(path, audioBuf);
+      })
+    ).finally(() => {
+      setLoadingStyleName(null);
+    });
   }, [style, customStyles]);
 
   useEffect(() => {
@@ -355,7 +364,7 @@ export const AudioProvider = ({ children }: { children: ReactNode }) => {
       backgroundTracks, addBackgroundTrack, removeBackgroundTrack, updateBackgroundTrack,
       playBackgroundTrack, stopBackgroundTrack, isBgPlaying, currentBgTrackId,
       padVolume, setPadVolume, bgVolume, setBgVolume,
-      fadeDuration, setFadeDuration,
+      fadeDuration, setFadeDuration, loadingStyleName,
     }}>
       {children}
     </AudioContext.Provider>

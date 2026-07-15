@@ -6,7 +6,8 @@ import PlayerView from './components/PlayerView';
 import StyleConfigView from './components/StyleConfigView';
 import BackgroundMusicView from './components/BackgroundMusicView';
 import SettingsView from './components/SettingsView';
-import { AudioProvider } from './context/AudioContext';
+import StyleLoading from './components/StyleLoading';
+import { AudioProvider, useAudio } from './context/AudioContext';
 
 function SplashScreen() {
   return (
@@ -20,6 +21,11 @@ function SplashScreen() {
       </motion.div>
     </div>
   );
+}
+
+function AppContent() {
+  const { loadingStyleName } = useAudio();
+  return loadingStyleName ? <StyleLoading styleName={loadingStyleName} /> : null;
 }
 
 export default function App() {
@@ -74,6 +80,7 @@ export default function App() {
     <AudioProvider>
       {!ready && <SplashScreen />}
 
+      <AppContent />
       <div className="min-h-screen bg-[#0F1115] text-slate-100 font-sans relative">
         <div className="fixed inset-0 pointer-events-none flex items-center justify-center opacity-[0.04]">
           <img src="/logo.png" alt="" className="w-96 h-96 object-contain" />
